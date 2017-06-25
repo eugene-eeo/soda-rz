@@ -1,0 +1,47 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "20fc147f27766670f95c6b97f67cff2b7db793fa86c9a7985838cfa122d6984f"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "cycler": {
+            "version": "==0.10.0"
+        },
+        "matplotlib": {
+            "version": "==2.0.0"
+        },
+        "numpy": {
+            "version": "==1.13.0"
+        },
+        "pandas": {
+            "version": "==0.20.2"
+        },
+        "pyparsing": {
+            "version": "==2.2.0"
+        },
+        "python-dateutil": {
+            "version": "==2.6.0"
+        },
+        "pytz": {
+            "version": "==2017.2"
+        },
+        "scipy": {
+            "version": "==0.19.1"
+        },
+        "seaborn": {
+            "version": "==0.7.1"
+        },
+        "six": {
+            "version": "==1.10.0"
+        }
+    },
+    "develop": {}
+}
