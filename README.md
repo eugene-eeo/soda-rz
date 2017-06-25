@@ -20,8 +20,8 @@ $ pipenv install
 
 ```
 $ pipenv shell
-$ ./sim > data.txt
-$ cat data.txt | ./gen graph.png --dpi=300
+$ bin/sim > data.txt
+$ cat data.txt | bin/gen graph.png --dpi=300
 ```
 
 The party size, stats of party members (base damage, critical %,
