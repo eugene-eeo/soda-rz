@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import array
 import json
 import sys
 import random
+from collections import defaultdict, Counter
 import pandas as pd
 
 
@@ -55,20 +55,27 @@ def sim(party):
 
 
 def run(party, samples, levels, report_every):
-    L = array.array("i")
-    D = array.array("i")
+    data = defaultdict(Counter)
     for _ in range(samples):
         sample = [m.copy() for m in party]
         gen = sim(sample)
         for level in range(1, levels + 1):
             dmg = next(gen)
             if level % report_every == 0:
-                L.append(level)
-                D.append(dmg)
+                data[level][dmg] += 1
+    L = []
+    D = []
+    C = []
+    for level, counter in data.items():
+        for damage, count in counter.items():
+            L.append(level)
+            D.append(damage)
+            C.append(count)
     return pd.DataFrame({
-        'level': L,
+        'level':  L,
         'damage': D,
-        })
+        'count':  C,
+    })
 
 
 class SimError(Exception):
@@ -157,15 +164,8 @@ def main():
         levels,
         report_every,
         )
-    df['damage_count'] = 1
-    df = df.groupby(['level', 'damage']).count()
-    df = df.reset_index()
-
-    if len(df.level) > 1:
-        N = df[df.level == df.level[0]].damage_count.sum()
-        df['probability'] = df['damage_count'] / N
-
-    del df['damage_count']
+    df['probability'] = df['count'] / samples
+    del df['count']
     sys.stdout.write(df.to_json())
     info("Done")
 
