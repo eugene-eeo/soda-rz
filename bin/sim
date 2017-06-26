@@ -63,19 +63,7 @@ def run(party, samples, levels, report_every):
             dmg = next(gen)
             if level % report_every == 0:
                 data[level][dmg] += 1
-    L = []
-    D = []
-    C = []
-    for level, counter in data.items():
-        for damage, count in counter.items():
-            L.append(level)
-            D.append(damage)
-            C.append(count)
-    return pd.DataFrame({
-        'level':  L,
-        'damage': D,
-        'count':  C,
-    })
+    return data
 
 
 class SimError(Exception):
@@ -158,12 +146,14 @@ def main():
     info("       samples = %d" % samples)
     info("  report_every = %d" % report_every)
     info("        levels = %d" % levels)
-    df = run(
+    data = run(
         party,
         samples,
         levels,
         report_every,
         )
+    df = pd.DataFrame.from_dict(data, orient='index').stack().reset_index()
+    df.columns = ['level', 'damage', 'count']
     df['probability'] = df['count'] / samples
     del df['count']
     sys.stdout.write(df.to_json())
