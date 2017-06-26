@@ -20,9 +20,10 @@ $ pipenv install
 
 ```
 $ pipenv shell
-$ bin/sim | bin/plot graph.png --dpi=300
+$ ./run.sh graph.png --dpi=300
 ```
 
 The party size, stats of party members (base damage, critical %,
-and critical multiplier), etc can be easily configured by editing
-the `config.json` file. A sample configuration is provided.
+base damage multiplier, and critical multiplier), etc. can be easily
+configured by editing the `config.json` file. A sample configuration
+is provided.

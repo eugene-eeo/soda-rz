@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+import array
 import json
 import sys
 import random
-from collections import Counter, defaultdict
-from pandas import DataFrame
+import pandas as pd
 
 
 class Ragezerker:
@@ -51,20 +51,24 @@ def sim(party):
     while True:
         for r in ragers:
             r.buff(party)
-        yield sum(a.damage() for a in actors)
+        yield int(sum(a.damage() for a in actors))
 
 
 def run(party, samples, levels, report_every):
-    data = defaultdict(Counter)
+    L = array.array("i")
+    D = array.array("i")
     for _ in range(samples):
         sample = [m.copy() for m in party]
         gen = sim(sample)
-
         for level in range(1, levels + 1):
             dmg = next(gen)
             if level % report_every == 0:
-                data[level][dmg] += 1
-    return data
+                L.append(level)
+                D.append(dmg)
+    return pd.DataFrame({
+        'level': L,
+        'damage': D,
+        })
 
 
 class SimError(Exception):
@@ -113,10 +117,23 @@ def read_config():
     return data
 
 
-def run_using(data):
+def info(s, is_tty=sys.stderr.isatty()):
+    color = ""
+    reset = ""
+    if is_tty:
+        color = "\x1b[33m"
+        reset = "\x1b[0m"
+    info = color + "INFO:  " + reset
+    sys.stderr.write(info + s + "\n")
+
+
+def main():
+    info("Reading configuration...")
+    data = read_config()
     samples      = int(data['samples'])
     report_every = int(data['report_every'])
     levels       = int(data['levels'])
+    info("Generating party...")
     party = []
     for member in data['party']:
         party.append(Actor(
@@ -127,37 +144,30 @@ def run_using(data):
         ))
     if len(party) > 5:
         raise SimError("Party size > 5")
-    party.extend(Ragezerker() for _ in range(5 - len(party)))
-    return run(
+    num_ragers = 5 - len(party)
+    party.extend([Ragezerker()] * num_ragers)
+    info("Running simulation...")
+    info("Parameters:")
+    info("       samples = %d" % samples)
+    info("  report_every = %d" % report_every)
+    info("        levels = %d" % levels)
+    df = run(
         party,
         samples,
         levels,
         report_every,
         )
+    df['damage_count'] = 1
+    df = df.groupby(['level', 'damage']).count()
+    df = df.reset_index()
 
+    if len(df.level) > 1:
+        N = df[df.level == df.level[0]].damage_count.sum()
+        df['probability'] = df['damage_count'] / N
 
-def pdist(counter):
-    n = sum(counter.values())
-    return {x: f / n for x, f in counter.items()}
-
-def main():
-    D = []
-    P = []
-    L = []
-
-    data = run_using(read_config())
-    for level, counter in data.items():
-        Pr = pdist(counter)
-        for dmg, p in Pr.items():
-            D.append(dmg)
-            P.append(p)
-            L.append(level)
-
-    sys.stdout.write(DataFrame({
-        'damage': D,
-        'probability': P,
-        'level': L,
-    }).to_json())
+    del df['damage_count']
+    sys.stdout.write(df.to_json())
+    info("Done")
 
 
 if __name__ == '__main__':
