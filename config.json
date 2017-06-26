@@ -1,11 +1,11 @@
 {
     "party": [
-        {"atk": 10, "p_crit": 0.5, "multiplier": 2.0},
-        {"atk": 10, "p_crit": 0.5, "multiplier": 2.0},
-        {"atk": 10, "p_crit": 0.5, "multiplier": 2.0},
-        {"atk": 10, "p_crit": 0.5, "multiplier": 2.0}
+        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
+        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
+        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
+        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00}
     ],
     "samples": 10000,
-    "levels":  400,
+    "levels":  1500,
     "report_every": 100
 }

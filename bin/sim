@@ -3,7 +3,7 @@
 import json
 import sys
 import random
-from collections import Counter
+from collections import Counter, defaultdict
 from pandas import DataFrame
 
 
@@ -21,21 +21,28 @@ class Ragezerker:
 
 
 class Actor:
-    __slots__ = ('atk', 'p_crit', 'multiplier')
+    __slots__ = ('atk', 'p_crit', 'crit_multiplier', 'multiplier')
     is_ragezerker = False
 
-    def __init__(self, atk, p_crit, multiplier):
+    def __init__(self, atk, p_crit, crit_multiplier, multiplier):
         self.atk = atk
         self.p_crit = p_crit
+        self.crit_multiplier = crit_multiplier
         self.multiplier = multiplier
 
     def damage(self):
+        atk = self.multiplier * self.atk
         if random.random() <= self.p_crit:
-            return self.multiplier * self.atk
-        return self.atk
+            return self.crit_multiplier * atk
+        return atk
 
     def copy(self):
-        return Actor(self.atk, self.p_crit, self.multiplier)
+        return Actor(
+            self.atk,
+            self.p_crit,
+            self.crit_multiplier,
+            self.multiplier,
+            )
 
 
 def sim(party):
@@ -48,12 +55,16 @@ def sim(party):
 
 
 def run(party, samples, levels, report_every):
-    sims = [sim([p.copy() for p in party]) for _ in range(samples)]
+    data = defaultdict(Counter)
+    for _ in range(samples):
+        sample = [m.copy() for m in party]
+        gen = sim(sample)
 
-    for level in range(1, levels+1):
-        seq = [next(s) for s in sims]
-        if level % report_every == 0:
-            yield level, seq
+        for level in range(1, levels + 1):
+            dmg = next(gen)
+            if level % report_every == 0:
+                data[level][dmg] += 1
+    return data
 
 
 class SimError(Exception):
@@ -91,9 +102,10 @@ def read_config():
         ('report_every', int,  'gather statistics every nth level'),
     ])
     party_member_schema = [
-        ('atk',        int,  'initial attack'),
-        ('p_crit',     float, '% to crit'),
-        ('multiplier', float, 'crit dmg multiplier (100% => 1.0)'),
+        ('atk',             int,  'initial attack'),
+        ('p_crit',          float, '% to crit'),
+        ('multiplier',      float, 'normal dmg multiplier (100% => 1.0)'),
+        ('crit_multiplier', float, 'crit dmg multiplier (100% => 1.0)'),
     ]
     data['party'] = [
         expect(r, party_member_schema) for r in data['party']
@@ -110,8 +122,11 @@ def run_using(data):
         party.append(Actor(
             member['atk'],
             member['p_crit'],
+            member['crit_multiplier'],
             member['multiplier'],
         ))
+    if len(party) > 5:
+        raise SimError("Party size > 5")
     party.extend(Ragezerker() for _ in range(5 - len(party)))
     return run(
         party,
@@ -121,25 +136,22 @@ def run_using(data):
         )
 
 
-def pdist(seq):
-    u = Counter(seq)
-    n = sum(u.values())
-    Pr = {}
-    for x, f in u.items():
-        Pr[x] = f / n
-    return Pr
+def pdist(counter):
+    n = sum(counter.values())
+    return {x: f / n for x, f in counter.items()}
 
 def main():
     D = []
     P = []
     L = []
 
-    for level, seq in run_using(read_config()):
-        Pr = pdist(seq)
-        keys = sorted(Pr)
-        D.extend(keys)
-        P.extend(Pr[x] for x in keys)
-        L.extend(level for _ in range(len(keys)))
+    data = run_using(read_config())
+    for level, counter in data.items():
+        Pr = pdist(counter)
+        for dmg, p in Pr.items():
+            D.append(dmg)
+            P.append(p)
+            L.append(level)
 
     sys.stdout.write(DataFrame({
         'damage': D,
