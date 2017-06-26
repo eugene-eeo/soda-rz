@@ -112,23 +112,11 @@ def read_config():
     return data
 
 
-def info(s, is_tty=sys.stderr.isatty()):
-    color = ""
-    reset = ""
-    if is_tty:
-        color = "\x1b[33m"
-        reset = "\x1b[0m"
-    info = color + "[sim]  " + reset
-    sys.stderr.write(info + s + "\n")
-
-
 def main():
-    info("Reading configuration...")
     data = read_config()
     samples      = int(data['samples'])
     report_every = int(data['report_every'])
     levels       = int(data['levels'])
-    info("Generating party...")
     party = []
     for member in data['party']:
         party.append(Actor(
@@ -141,11 +129,6 @@ def main():
         raise SimError("Party size > 5")
     num_ragers = 5 - len(party)
     party.extend([Ragezerker()] * num_ragers)
-    info("Running simulation...")
-    info("Parameters:")
-    info("       samples = %d" % samples)
-    info("  report_every = %d" % report_every)
-    info("        levels = %d" % levels)
     data = run(
         party,
         samples,
@@ -157,7 +140,6 @@ def main():
     df['probability'] = df['count'] / samples
     del df['count']
     sys.stdout.write(df.to_json())
-    info("Done")
 
 
 if __name__ == '__main__':
