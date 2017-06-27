@@ -56,7 +56,7 @@ def check():
     if config_ok:
         for member in config['party']:
             party_ok &= expect(member, [
-                ('atk', int, 'Base attack'),
+                ('atk',    int,   'Base attack'),
                 ('p_crit', float, 'Crit %'),
                 ('m_crit', float, 'Crit dmg multiplier'),
                 ('m_base', float, 'Base dmg multiplier'),

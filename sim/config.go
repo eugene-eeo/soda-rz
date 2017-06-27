@@ -41,12 +41,12 @@ func readConfig() (*config, error) {
 func paramsFromConfig(conf *config) parameters {
 	party := []Member{}
 	for _, member := range conf.Party {
-		party = append(party, &Actor{
-			atk:    member.Atk,
-			m_base: member.Mbase,
-			m_crit: member.Mcrit,
-			p_crit: member.Pcrit,
-		})
+		party = append(party, newActor(
+			member.Atk,
+			member.Pcrit,
+			member.Mcrit,
+			member.Mbase,
+		))
 	}
 	if 5-len(party) > 0 {
 		for i := 0; i < 5-len(party); i++ {
