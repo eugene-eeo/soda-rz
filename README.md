@@ -13,7 +13,7 @@ progresses through a given number of levels.
 ```
 $ git clone git@github.com:eugene-eeo/soda-rz.git
 $ cd soda-rz
-$ pipenv install
+$ make install
 ```
 
 ## Usage:
