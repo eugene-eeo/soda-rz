@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import argparse
 import sys
 import pandas as pd
@@ -15,10 +16,21 @@ def main():
                     help='toggle dpi of plotted figure')
     args = parser.parse_args()
 
-    df = pd.read_json(sys.stdin)
-    sns.set_style('whitegrid')
-    levels = df.nunique().get_value('level')
+    df = pd.DataFrame(columns=['level', 'damage', 'count'])
+    for i, line in enumerate(sys.stdin):
+        r = json.loads(line)
+        df.loc[i] = [
+            int(r['level']),
+            int(r['damage']),
+            int(r['count']),
+        ]
 
+    df = df.to_dense()
+    N = df[df.level == df.level[0]]['count'].sum()
+    df['probability'] = df['count'] / N
+    del df['count']
+
+    sns.set_style('whitegrid')
     g = sns.FacetGrid(df, col='level', sharex=False, col_wrap=4)
     g.map(plt.bar, 'damage', 'probability', color='black', linewidth=0.5)
     plt.savefig(args.filename, dpi=args.dpi)
