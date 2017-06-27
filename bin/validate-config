@@ -31,9 +31,14 @@ def expect(data, schema):
         if t == 0:
             continue
         ok = False
+        message = 'has wrong type' if t == 2 else 'not found'
         error(
-            'key {message}:'.format(message='has wrong type' if t == 2 else 'not found'),
-            '{key} ({type}): {help}'.format(key=key, type=type.__name__, help=help_message),
+            'key {message}:'.format(message=message),
+            '{key} ({type}): {help}'.format(
+                key=key,
+                type=type.__name__,
+                help=help_message,
+                ),
             )
     return ok
 
