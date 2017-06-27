@@ -16,20 +16,17 @@ def main():
                     help='toggle dpi of plotted figure')
     args = parser.parse_args()
 
-    df = pd.DataFrame(columns=['level', 'damage', 'count'])
+    df = pd.DataFrame(columns=['level', 'damage', 'probability'])
     for i, line in enumerate(sys.stdin):
         r = json.loads(line)
         df.loc[i] = [
-            int(r['level']),
-            int(r['damage']),
-            int(r['count']),
+            int(r['l']),
+            int(r['d']),
+            r['p'],
         ]
 
     df = df.to_dense()
-    N = df[df.level == df.level[0]]['count'].sum()
-    df['probability'] = df['count'] / N
-    del df['count']
-
+    df[['level', 'damage']] = df[['level', 'damage']].astype(int)
     sns.set_style('whitegrid')
     g = sns.FacetGrid(df, col='level', sharex=False, col_wrap=4)
     g.map(plt.bar, 'damage', 'probability', color='black', linewidth=0.5)

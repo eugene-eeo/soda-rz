@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-bin/sim | bin/plot $@
+bin/validate-config && bin/sim | bin/plot $@

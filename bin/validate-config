@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+import json
+import sys
+
+
+def iftty(s, is_tty=sys.stdout.isatty()):
+    if is_tty:
+        return s
+    return ''
+
+
+RED = iftty('\x1b[31m')
+RESET = iftty('\x1b[0m')
+
+
+def error(l, *xs):
+    print(RED + '[!] ' + RESET + l)
+    for line in xs:
+        print('    ' + line)
+
+
+def expect(data, schema):
+    ok = True
+    for key, type, help_message in schema:
+        t = 0
+        if key not in data:
+            t = 1
+        elif not isinstance(data[key], type):
+            t = 2
+        if t == 0:
+            continue
+        ok = False
+        error(
+            'key {message}:'.format(message='has wrong type' if t == 2 else 'not found'),
+            '{key} ({type}): {help}'.format(key=key, type=type.__name__, help=help_message),
+            )
+    return ok
+
+
+def check():
+    with open('config.json') as fp:
+        try:
+            config = json.load(fp)
+        except Exception as exc:
+            error('Cannot read config:', repr(exc))
+            return False
+
+    config_ok = expect(config, [
+        ('party',        list, 'List of members'),
+        ('samples',      int,  'Number of parties to simulate'),
+        ('levels',       int,  'Simulate from 1 up to the given level'),
+        ('report_every', int,  'Gather statistics every given level'),
+    ])
+    party_ok = True
+    if config_ok:
+        for member in config['party']:
+            party_ok &= expect(member, [
+                ('atk', int, 'Base attack'),
+                ('p_crit', float, 'Crit %'),
+                ('m_crit', float, 'Crit dmg multiplier'),
+                ('m_base', float, 'Base dmg multiplier'),
+            ])
+    return config_ok and party_ok
+
+
+if __name__ == '__main__':
+    if not check():
+        sys.exit(1)
