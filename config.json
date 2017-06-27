@@ -1,9 +1,9 @@
 {
     "party": [
-        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
-        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
-        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00},
-        {"atk": 100, "p_crit": 1.00, "crit_multiplier": 2.70, "multiplier": 1.00}
+        {"atk": 100, "p_crit": 1.00, "m_crit": 2.70, "m_base": 1.00},
+        {"atk": 100, "p_crit": 1.00, "m_crit": 2.70, "m_base": 1.00},
+        {"atk": 100, "p_crit": 1.00, "m_crit": 2.70, "m_base": 1.00},
+        {"atk": 100, "p_crit": 1.00, "m_crit": 2.70, "m_base": 1.00}
     ],
     "samples": 10000,
     "levels":  1500,
