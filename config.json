@@ -7,5 +7,6 @@
     ],
     "samples": 10000,
     "levels":  400,
-    "report_every": 100
+    "report_every": 100,
+    "workers": 3
 }
