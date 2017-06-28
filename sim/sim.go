@@ -1,7 +1,6 @@
 package main
 
 import "math/rand"
-import "time"
 
 type Member interface {
 	isRagezerker() bool
@@ -131,13 +130,13 @@ type levelStats struct {
 	damage int
 }
 
-func worker(dst chan<- levelStats, params parameters) {
+func worker(id int, dst chan<- levelStats, params parameters) {
 	party := params.party
 	levels := params.levels
 	report_every := params.report_every
 	ragers, actors := filterParty(party)
 
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rng := rand.New(rand.NewSource(int64(id)))
 
 	for i := 0; i < params.samples; i++ {
 		refreshParty(party)
@@ -178,7 +177,7 @@ func run(params parameters) map[int]map[int]int {
 		if i == 0 {
 			samples += remainder
 		}
-		go worker(sink, parameters{
+		go worker(i, sink, parameters{
 			party:        copyParty(params.party),
 			samples:      samples,
 			levels:       params.levels,
