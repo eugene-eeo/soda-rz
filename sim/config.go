@@ -15,7 +15,7 @@ type config struct {
 	Samples     int         `json:"samples"`
 	Levels      int         `json:"levels"`
 	ReportEvery int         `json:"report_every"`
-	Parallelism int         `json:"parallelism"`
+	Workers     int         `json:"workers"`
 }
 
 func readConfig() (*config, error) {
@@ -60,6 +60,6 @@ func paramsFromConfig(conf *config) parameters {
 		samples:      conf.Samples,
 		levels:       conf.Levels,
 		report_every: conf.ReportEvery,
-		parallelism:  max(conf.Parallelism, 1),
+		workers:      max(conf.Workers, 1),
 	}
 }

@@ -1,19 +1,20 @@
 package main
 
 import "math/rand"
+import "time"
 
 type Member interface {
 	isRagezerker() bool
 	buffAttack(int)
-	damage() int
+	damage(*rand.Rand) int
 	refresh()
 	copy() Member
 }
 
 type Ragezerker struct{}
 
-func (r *Ragezerker) buff(members []Member) {
-	index := rand.Intn(len(members))
+func (r *Ragezerker) buff(members []Member, rng *rand.Rand) {
+	index := rng.Intn(len(members))
 	members[index].buffAttack(2)
 }
 
@@ -24,7 +25,7 @@ func (r *Ragezerker) isRagezerker() bool {
 func (r *Ragezerker) buffAttack(i int) {
 }
 
-func (r *Ragezerker) damage() int {
+func (r *Ragezerker) damage(rng *rand.Rand) int {
 	return 0
 }
 
@@ -61,9 +62,9 @@ func (a *Actor) buffAttack(i int) {
 	a.atk += i
 }
 
-func (a *Actor) damage() int {
+func (a *Actor) damage(rng *rand.Rand) int {
 	atk := float64(a.atk) * a.m_base
-	if rand.Float64() <= a.p_crit {
+	if rng.Float64() <= a.p_crit {
 		return int(atk * a.m_crit)
 	}
 	return int(atk)
@@ -87,17 +88,17 @@ type parameters struct {
 	samples      int
 	levels       int
 	report_every int
-	parallelism  int
+	workers      int
 }
 
-func sim(party []Member, ragers []*Ragezerker, actors []*Actor) func() int {
+func sim(rng *rand.Rand, party []Member, ragers []*Ragezerker, actors []*Actor) func() int {
 	return func() int {
 		for _, r := range ragers {
-			r.buff(party)
+			r.buff(party, rng)
 		}
 		n := 0
 		for _, member := range actors {
-			n += member.damage()
+			n += member.damage(rng)
 		}
 		return n
 	}
@@ -141,9 +142,11 @@ func worker(dst chan<- levelStats, params parameters) {
 	report_every := params.report_every
 	ragers, actors := filterParty(party)
 
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	for i := 0; i < params.samples; i++ {
 		refreshParty(party)
-		gen := sim(party, ragers, actors)
+		gen := sim(rng, party, ragers, actors)
 
 		for lvl := 1; lvl <= levels; lvl++ {
 			dmg := gen()
@@ -169,8 +172,8 @@ func aggregate(samples int, sink <-chan levelStats) map[int]map[int]int {
 }
 
 func run(params parameters) map[int]map[int]int {
-	n := params.parallelism
-	sink := make(chan levelStats, n)
+	n := params.workers
+	sink := make(chan levelStats, 50*n)
 
 	sample_per_worker := params.samples / n
 	remainder := params.samples % n
