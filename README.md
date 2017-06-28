@@ -3,10 +3,16 @@
 <img src='graph.png'/>
 
 Program to calculate and plot the probability distribution for
-the total damage output (on the first round) of a [Soda Dungeon](http://sodadungeon.com)
+the total damage output (on the first turn) of a [Soda Dungeon](http://sodadungeon.com)
 party of 5 with 1 (or more) Ragezerker(s), taking into account the
 stacked attack and probability to get critical hits, as the party
-progresses through a given number of levels.
+progresses through a given number of levels. Assumptions:
+
+1. 100% hit rate, i.e. no party member is confused
+2. All party members will not use any skills
+3. Party size is 5
+4. Ragezerker does not hit on the first round
+5. All _n_ Ragezerkers take the first _n_ positions
 
 ## Installation:
 
