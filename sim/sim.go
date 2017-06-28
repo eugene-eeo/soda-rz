@@ -152,9 +152,9 @@ func worker(dst chan<- levelStats, params parameters) {
 	}
 }
 
-func aggregate(samples int, sink <-chan levelStats) map[int]map[int]int {
+func aggregate(total int, sink <-chan levelStats) map[int]map[int]int {
 	data := map[int]map[int]int{}
-	for i := 0; i < samples; i++ {
+	for i := 0; i < total; i++ {
 		row := <-sink
 		counter := data[row.level]
 		if counter == nil {
@@ -186,5 +186,6 @@ func run(params parameters) map[int]map[int]int {
 		})
 	}
 
-	return aggregate(params.samples, sink)
+	total := params.samples * (params.levels / params.report_every)
+	return aggregate(total, sink)
 }
