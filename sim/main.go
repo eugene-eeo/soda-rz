@@ -16,12 +16,7 @@ func main() {
 		panic(err)
 	}
 	params := paramsFromConfig(conf)
-	data := run(
-		params.party,
-		params.samples,
-		params.levels,
-		params.report_every,
-	)
+	data := run(params)
 	buffered_stdout := bufio.NewWriter(os.Stdout)
 	encoder := json.NewEncoder(buffered_stdout)
 	N := float64(params.samples)

@@ -15,13 +15,7 @@ type config struct {
 	Samples     int         `json:"samples"`
 	Levels      int         `json:"levels"`
 	ReportEvery int         `json:"report_every"`
-}
-
-type parameters struct {
-	party        []Member
-	samples      int
-	levels       int
-	report_every int
+	Parallelism int         `json:"parallelism"`
 }
 
 func readConfig() (*config, error) {
@@ -38,6 +32,13 @@ func readConfig() (*config, error) {
 	return conf, nil
 }
 
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func paramsFromConfig(conf *config) parameters {
 	party := []Member{}
 	for _, member := range conf.Party {
@@ -49,8 +50,9 @@ func paramsFromConfig(conf *config) parameters {
 		))
 	}
 	if 5-len(party) > 0 {
+		r := &Ragezerker{}
 		for i := 0; i < 5-len(party); i++ {
-			party = append(party, &Ragezerker{})
+			party = append(party, r)
 		}
 	}
 	return parameters{
@@ -58,5 +60,6 @@ func paramsFromConfig(conf *config) parameters {
 		samples:      conf.Samples,
 		levels:       conf.Levels,
 		report_every: conf.ReportEvery,
+		parallelism:  max(conf.Parallelism, 1),
 	}
 }
