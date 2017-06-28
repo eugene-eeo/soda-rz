@@ -180,7 +180,7 @@ func run(params parameters) map[int]map[int]int {
 
 	for i := 0; i < n; i++ {
 		samples := sample_per_worker
-		if i == n-1 {
+		if i == 0 {
 			samples += remainder
 		}
 		go worker(sink, parameters{
