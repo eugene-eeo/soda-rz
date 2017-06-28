@@ -6,7 +6,6 @@ import "time"
 type Member interface {
 	isRagezerker() bool
 	buffAttack(int)
-	damage(*rand.Rand) int
 	refresh()
 	copy() Member
 }
@@ -23,10 +22,6 @@ func (r *Ragezerker) isRagezerker() bool {
 }
 
 func (r *Ragezerker) buffAttack(i int) {
-}
-
-func (r *Ragezerker) damage(rng *rand.Rand) int {
-	return 0
 }
 
 func (r *Ragezerker) refresh() {
@@ -185,7 +180,7 @@ func run(params parameters) map[int]map[int]int {
 		}
 		go worker(sink, parameters{
 			party:        copyParty(params.party),
-			samples:      sample_per_worker,
+			samples:      samples,
 			levels:       params.levels,
 			report_every: params.report_every,
 		})
