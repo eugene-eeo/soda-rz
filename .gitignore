@@ -1,5 +1,6 @@
 graph.png
 data.txt
-config.json
+data-*.txt
 bin/sim
 sim/sim
+*.png

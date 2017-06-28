@@ -5,14 +5,13 @@ import "math/rand"
 type Member interface {
 	isRagezerker() bool
 	buffAttack(int)
-	damage() int
 	refresh()
 }
 
 type Ragezerker struct{}
 
-func (r *Ragezerker) buff(members []Member) {
-	index := rand.Intn(len(members))
+func (r *Ragezerker) buff(members []Member, rng *rand.Rand) {
+	index := rng.Intn(len(members))
 	members[index].buffAttack(2)
 }
 
@@ -21,10 +20,6 @@ func (r *Ragezerker) isRagezerker() bool {
 }
 
 func (r *Ragezerker) buffAttack(i int) {
-}
-
-func (r *Ragezerker) damage() int {
-	return 0
 }
 
 func (r *Ragezerker) refresh() {
@@ -56,9 +51,9 @@ func (a *Actor) buffAttack(i int) {
 	a.atk += i
 }
 
-func (a *Actor) damage() int {
+func (a *Actor) damage(rng *rand.Rand) int {
 	atk := float64(a.atk) * a.m_base
-	if rand.Float64() <= a.p_crit {
+	if rng.Float64() <= a.p_crit {
 		return int(atk * a.m_crit)
 	}
 	return int(atk)
@@ -68,14 +63,14 @@ func (a *Actor) refresh() {
 	a.atk = a.b_atk
 }
 
-func sim(party []Member, ragers []*Ragezerker, actors []*Actor) func() int {
+func sim(rng *rand.Rand, party []Member, ragers []*Ragezerker, actors []*Actor) func() int {
 	return func() int {
 		for _, r := range ragers {
-			r.buff(party)
+			r.buff(party, rng)
 		}
 		n := 0
 		for _, member := range actors {
-			n += member.damage()
+			n += member.damage(rng)
 		}
 		return n
 	}
@@ -104,9 +99,11 @@ func run(party []Member, samples int, levels int, report_every int) map[int]map[
 	data := map[int]map[int]int{}
 	ragers, actors := filterParty(party)
 
+	rng := rand.New(rand.NewSource(0xdeadbeef))
+
 	for i := 0; i < samples; i++ {
 		refreshParty(party)
-		gen := sim(party, ragers, actors)
+		gen := sim(rng, party, ragers, actors)
 
 		for lvl := 1; lvl <= levels; lvl++ {
 			dmg := gen()
