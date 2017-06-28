@@ -16,14 +16,9 @@ func main() {
 		panic(err)
 	}
 	params := paramsFromConfig(conf)
-	data := run(
-		params.party,
-		params.samples,
-		params.levels,
-		params.report_every,
-	)
-	buffered_stdout := bufio.NewWriter(os.Stdout)
-	encoder := json.NewEncoder(buffered_stdout)
+	data := run(params)
+	stdout := bufio.NewWriter(os.Stdout)
+	encoder := json.NewEncoder(stdout)
 	N := float64(params.samples)
 	for level, counter := range data {
 		for damage, count := range counter {
@@ -37,5 +32,5 @@ func main() {
 			}
 		}
 	}
-	buffered_stdout.Flush()
+	stdout.Flush()
 }
