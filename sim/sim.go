@@ -137,10 +137,10 @@ func worker(id int, dst chan<- levelStats, params parameters) {
 	ragers, actors := filterParty(party)
 
 	rng := rand.New(rand.NewSource(int64(id)))
+	gen := sim(rng, party, ragers, actors)
 
 	for i := 0; i < params.samples; i++ {
 		refreshParty(party)
-		gen := sim(rng, party, ragers, actors)
 
 		for lvl := 1; lvl <= levels; lvl++ {
 			dmg := gen()

@@ -1,12 +1,12 @@
 {
     "party": [
-        {"atk": 10, "p_crit": 0.50, "m_crit": 2.50, "m_base": 1.00},
-        {"atk": 10, "p_crit": 0.50, "m_crit": 2.50, "m_base": 1.00},
-        {"atk": 10, "p_crit": 0.50, "m_crit": 2.50, "m_base": 1.00},
-        {"atk": 10, "p_crit": 0.50, "m_crit": 2.50, "m_base": 1.00}
+        {"atk": 450, "p_crit": 1.00, "m_crit": 2.75, "m_base": 1.00},
+        {"atk": 450, "p_crit": 1.00, "m_crit": 2.75, "m_base": 1.00},
+        {"atk": 450, "p_crit": 1.00, "m_crit": 2.75, "m_base": 1.00},
+        {"atk": 450, "p_crit": 1.00, "m_crit": 2.75, "m_base": 1.00}
     ],
-    "samples": 10000,
-    "levels":  400,
+    "samples": 100000,
+    "levels":  1500,
     "report_every": 100,
     "workers": 3
 }
