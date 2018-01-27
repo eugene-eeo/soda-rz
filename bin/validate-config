@@ -23,15 +23,13 @@ def error(l, *xs):
 def expect(data, schema):
     ok = True
     for key, type, help_message in schema:
-        t = 0
         if key not in data:
-            t = 1
+            message = 'not found'
         elif not isinstance(data[key], type):
-            t = 2
-        if t == 0:
+            message = 'has wrong type'
+        else:
             continue
         ok = False
-        message = 'has wrong type' if t == 2 else 'not found'
         error(
             'key {message}:'.format(message=message),
             '{key} ({type}): {help}'.format(
